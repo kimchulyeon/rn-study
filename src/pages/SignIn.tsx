@@ -1,10 +1,14 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useState} from 'react';
 import {Alert, Pressable, StyleSheet, Text, TextInput, View} from 'react-native';
 
 const SignIn = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
   const onSubmit = useCallback(() => {
     Alert.alert('알림', '안녕');
   }, []);
+
   return (
     <View>
       <View>
@@ -16,7 +20,10 @@ const SignIn = () => {
         <TextInput placeholder="비밀번호를 입력해주세요." />
       </View>
       <View style={styles.buttonZone}>
-        <Pressable onPress={onSubmit} style={styles.loginButton} disabled={true}>
+        <Pressable
+          onPress={onSubmit}
+          style={!email || !password ? styles.loginButton : styles.loginButtonActive}
+          disabled={!email || !password}>
           <Text style={styles.loginButtonText}>로그인</Text>
         </Pressable>
         <Pressable onPress={onSubmit}>
@@ -33,6 +40,13 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     backgroundColor: 'gray',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  loginButtonActive: {
+    backgroundColor: '#5656df',
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 5,
