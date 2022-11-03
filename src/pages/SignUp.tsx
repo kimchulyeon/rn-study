@@ -1,6 +1,6 @@
 /* eslint-disable no-useless-escape */
 import React, {useCallback, useRef, useState} from 'react';
-import {Alert, Platform, Pressable, StyleSheet, Text, TextInput, View} from 'react-native';
+import {ActivityIndicator, Alert, Platform, Pressable, StyleSheet, Text, TextInput, View} from 'react-native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../../App';
 import DismissKeyboardView from '../components/DismissKeyboardView';
@@ -17,8 +17,6 @@ function SignUp({navigation}: SignUpScreenProps) {
   const passwordRef = useRef<TextInput | null>(null);
   const [loading, setLoading] = useState(false);
 
-  console.log(loading);
-
   const onChangeEmail = useCallback((text: string) => {
     setEmail(text.trim());
   }, []);
@@ -29,6 +27,9 @@ function SignUp({navigation}: SignUpScreenProps) {
     setPassword(text.trim());
   }, []);
   const onSubmit = useCallback(async () => {
+    if (loading) {
+      return;
+    }
     if (!email || !email.trim()) {
       return Alert.alert('알림', '이메일을 입력해주세요.');
     }
@@ -61,7 +62,7 @@ function SignUp({navigation}: SignUpScreenProps) {
       setLoading(false);
     }
     navigation.navigate('SignIn');
-  }, [email, name, password, navigation]);
+  }, [email, name, password, navigation, loading]);
 
   const goLogin = useCallback(() => {
     navigation.navigate('SignIn');
@@ -137,7 +138,7 @@ function SignUp({navigation}: SignUpScreenProps) {
           style={canGoNext ? StyleSheet.compose(styles.registerButton, styles.registerButtonActive) : styles.registerButton}
           disabled={!canGoNext || loading}
           onPress={onSubmit}>
-          <Text style={styles.registerButtonText}>Register</Text>
+          {loading ? <ActivityIndicator /> : <Text style={styles.registerButtonText}>Register</Text>}
         </Pressable>
       </View>
     </DismissKeyboardView>
@@ -163,7 +164,9 @@ const styles = StyleSheet.create({
     marginTop: 50,
   },
   registerButton: {
-    backgroundColor: '#979797',
+    backgroundColor: '#0000001c',
+    borderColor: '#979797',
+    borderWidth: StyleSheet.hairlineWidth,
     width: '100%',
     alignItems: 'center',
     paddingVertical: 15,
@@ -175,7 +178,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   registerButtonText: {
-    color: 'white',
+    color: '#ffffff',
     fontWeight: 'bold',
   },
   inputZone: {
