@@ -4,6 +4,7 @@ import {Alert, Platform, Pressable, StyleSheet, Text, TextInput, View} from 'rea
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../../App';
 import DismissKeyboardView from '../components/DismissKeyboardView';
+import axios, {AxiosError} from 'axios';
 
 type SignUpScreenProps = NativeStackScreenProps<RootStackParamList, 'SignUp'>;
 
@@ -14,6 +15,9 @@ function SignUp({navigation}: SignUpScreenProps) {
   const emailRef = useRef<TextInput | null>(null);
   const nameRef = useRef<TextInput | null>(null);
   const passwordRef = useRef<TextInput | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  console.log(loading);
 
   const onChangeEmail = useCallback((text: string) => {
     setEmail(text.trim());
@@ -24,7 +28,7 @@ function SignUp({navigation}: SignUpScreenProps) {
   const onChangePassword = useCallback((text: string) => {
     setPassword(text.trim());
   }, []);
-  const onSubmit = useCallback(() => {
+  const onSubmit = useCallback(async () => {
     if (!email || !email.trim()) {
       return Alert.alert('알림', '이메일을 입력해주세요.');
     }
@@ -42,7 +46,20 @@ function SignUp({navigation}: SignUpScreenProps) {
     if (!/^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[$@^!%*#?&]).{8,50}$/.test(password)) {
       return Alert.alert('알림', '비밀번호는 영문,숫자,특수문자($@^!%*#?&)를 모두 포함하여 8자 이상 입력해야합니다.');
     }
-    Alert.alert('알림', '회원가입 되었습니다.');
+    try {
+      setLoading(true);
+      const res = await axios.post('/user', {email, name, password});
+      Alert.alert('알림', '회원가입 되었습니다.');
+      console.log(res);
+    } catch (error) {
+      const errorRes = (error as AxiosError<{message: string}>).response;
+      if (errorRes) {
+        Alert.alert('알림', errorRes?.data.message);
+      }
+    } finally {
+      console.log('object');
+      setLoading(false);
+    }
     navigation.navigate('SignIn');
   }, [email, name, password, navigation]);
 
@@ -51,6 +68,7 @@ function SignUp({navigation}: SignUpScreenProps) {
   }, [navigation]);
 
   const canGoNext = email && name && password;
+
   return (
     <DismissKeyboardView style={styles.inputZone}>
       <View style={styles.titleZone}>
@@ -117,7 +135,7 @@ function SignUp({navigation}: SignUpScreenProps) {
       <View style={styles.buttonZone}>
         <Pressable
           style={canGoNext ? StyleSheet.compose(styles.registerButton, styles.registerButtonActive) : styles.registerButton}
-          disabled={!canGoNext}
+          disabled={!canGoNext || loading}
           onPress={onSubmit}>
           <Text style={styles.registerButtonText}>Register</Text>
         </Pressable>
