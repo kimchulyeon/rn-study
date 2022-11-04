@@ -21,9 +21,9 @@ const AppInner = () => {
     <NavigationContainer>
       {isLoggedIn ? (
         <Tab.Navigator>
-          <Tab.Screen name="Orders" component={Orders} options={{title: '오더 목록'}} />
+          <Tab.Screen name="Orders" component={Orders} options={{title: '오더 목록', headerShown: true}} />
           <Tab.Screen name="Delivery" component={Delivery} options={{headerShown: false}} />
-          <Tab.Screen name="Settings" component={Settings} options={{title: '내 정보'}} />
+          <Tab.Screen name="Settings" component={Settings} options={{title: '내 정보', headerShown: true}} />
         </Tab.Navigator>
       ) : (
         <Stack.Navigator>

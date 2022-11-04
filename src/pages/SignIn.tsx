@@ -7,6 +7,8 @@ import {RootStackParamList} from '../../App';
 import DismissKeyboardView from '../components/DismissKeyboardView';
 import userSlice from '../slices/userSlice';
 import {useAppDispatch} from '../store';
+import EncryptedStorage from 'react-native-encrypted-storage';
+import Config from 'react-native-config';
 
 type SignInScreenProps = NativeStackScreenProps<RootStackParamList, 'SignIn'>;
 
@@ -34,15 +36,15 @@ const SignIn = ({navigation}: SignInScreenProps) => {
     }
     try {
       setIsLoading(true);
-      const res = await axios.post('http://192.168.1.205:3105/login', {email, password});
+      const res = await axios.post(`${Config.API_URL}/login`, {email, password});
       dispatch(
         userSlice.actions.setUser({
           name: res.data.data.name,
           email: res.data.data.email,
           accessToken: res.data.data.accessToken,
-          refreshToken: res.data.data.refreshToken,
         }),
       );
+      await EncryptedStorage.setItem('refreshToken', res.data.data.refreshToken);
       Alert.alert('알림', '로그인이 되었습니다.');
     } catch (error) {
       const errorRes = (error as AxiosError<{message: string}>).response;
