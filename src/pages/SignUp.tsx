@@ -52,10 +52,9 @@ function SignUp({navigation}: SignUpScreenProps) {
       console.log(Config.API_URL);
       setLoading(true);
       // const res = await axios.post(`${Config.API_URL}/user`, {email, name, password});
-      const res = await axios.post('http://192.168.1.205:3105/user', {email, name, password});
+      await axios.post('http://192.168.1.205:3105/user', {email, name, password});
       Alert.alert('알림', '회원가입 되었습니다.');
       navigation.navigate('SignIn');
-      console.log(res);
     } catch (error) {
       const errorRes = (error as AxiosError<{message: string}>).response;
       if (errorRes) {

@@ -1,22 +1,58 @@
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import axios, {AxiosError} from 'axios';
 import React, {useCallback, useRef, useState} from 'react';
 import {Alert, Pressable, StyleSheet, Text, TextInput, View} from 'react-native';
+// import {useDispatch} from 'react-redux';
 import {RootStackParamList} from '../../App';
 import DismissKeyboardView from '../components/DismissKeyboardView';
+import userSlice from '../slices/userSlice';
+import {useAppDispatch} from '../store';
 
 type SignInScreenProps = NativeStackScreenProps<RootStackParamList, 'SignIn'>;
 
 const SignIn = ({navigation}: SignInScreenProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setIsLoading] = useState(false);
   const emailRef = useRef<TextInput | null>(null);
   const passwordRef = useRef<TextInput | null>(null);
 
   const emptyEmailPwd = !email.trim() || !password.trim();
 
-  const onSubmit = useCallback(() => {
-    return Alert.alert('Notice', '로그인이 되었습니다.');
-  }, []);
+  // const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
+
+  const onSubmit = useCallback(async () => {
+    if (loading) {
+      return;
+    }
+    if (!email.trim()) {
+      return Alert.alert('알림', '이메일을 입력해주세요.');
+    }
+    if (!password.trim()) {
+      return Alert.alert('알림', '비밀번호을 입력해주세요.');
+    }
+    try {
+      setIsLoading(true);
+      const res = await axios.post('http://192.168.1.205:3105/login', {email, password});
+      dispatch(
+        userSlice.actions.setUser({
+          name: res.data.data.name,
+          email: res.data.data.email,
+          accessToken: res.data.data.accessToken,
+          refreshToken: res.data.data.refreshToken,
+        }),
+      );
+      Alert.alert('알림', '로그인이 되었습니다.');
+    } catch (error) {
+      const errorRes = (error as AxiosError<{message: string}>).response;
+      if (errorRes) {
+        Alert.alert('알림', errorRes?.data.message);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, [loading, email, password, dispatch]);
   const onChangeEmail = useCallback((text: string) => {
     setEmail(text.trim());
   }, []);
