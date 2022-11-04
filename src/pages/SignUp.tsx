@@ -5,6 +5,7 @@ import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../../App';
 import DismissKeyboardView from '../components/DismissKeyboardView';
 import axios, {AxiosError} from 'axios';
+import Config from 'react-native-config';
 
 type SignUpScreenProps = NativeStackScreenProps<RootStackParamList, 'SignUp'>;
 
@@ -48,9 +49,12 @@ function SignUp({navigation}: SignUpScreenProps) {
       return Alert.alert('알림', '비밀번호는 영문,숫자,특수문자($@^!%*#?&)를 모두 포함하여 8자 이상 입력해야합니다.');
     }
     try {
+      console.log(Config.API_URL);
       setLoading(true);
-      const res = await axios.post('/user', {email, name, password});
+      // const res = await axios.post(`${Config.API_URL}/user`, {email, name, password});
+      const res = await axios.post('http://192.168.1.205:3105/user', {email, name, password});
       Alert.alert('알림', '회원가입 되었습니다.');
+      navigation.navigate('SignIn');
       console.log(res);
     } catch (error) {
       const errorRes = (error as AxiosError<{message: string}>).response;
@@ -58,10 +62,8 @@ function SignUp({navigation}: SignUpScreenProps) {
         Alert.alert('알림', errorRes?.data.message);
       }
     } finally {
-      console.log('object');
       setLoading(false);
     }
-    navigation.navigate('SignIn');
   }, [email, name, password, navigation, loading]);
 
   const goLogin = useCallback(() => {
@@ -164,9 +166,7 @@ const styles = StyleSheet.create({
     marginTop: 50,
   },
   registerButton: {
-    backgroundColor: '#0000001c',
-    borderColor: '#979797',
-    borderWidth: StyleSheet.hairlineWidth,
+    backgroundColor: '#979797',
     width: '100%',
     alignItems: 'center',
     paddingVertical: 15,
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   registerButtonText: {
-    color: '#ffffff',
+    color: 'white',
     fontWeight: 'bold',
   },
   inputZone: {
